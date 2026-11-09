@@ -298,6 +298,33 @@ def filter_sf(cloud, filters,
 
     return out
 
+def show_sf(cloud, silent=True, verbose=False, cc=cc_exe, fmt='sbf', odir=None, colorscale=None):
+
+    cmd = CCCommand(cc, silent=silent, auto_save="OFF", fmt=fmt)
+    if type(cloud) is list:
+        for pc in cloud:
+            cmd.open_file(pc)
+    else:
+        cmd.open_file(cloud)
+
+    if colorscale is not None:
+        cmd.extend(['-SF_COLOR_SCALE', colorscale])
+
+    if type(cloud) is list:
+        root, ext = os.path.split(cloud[0])
+        out = os.path.join(root, 'AllClouds.bin')
+        cmd.extend(['-SAVE_CLOUDS', 'ALL_AT_ONCE'])
+    else:
+        root, ext = os.path.splitext(cloud)
+        out = root + f"_filtered.{fmt.lower()}"
+        cmd.extend(["-SAVE_CLOUDS", "FILE", out])
+
+    misc.run(cmd, verbose=verbose)
+
+    out = to_odir(out, odir)
+
+    return out
+
 
 ######
 # M3C2
